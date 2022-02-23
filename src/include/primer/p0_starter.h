@@ -118,7 +118,9 @@ class RowMatrix : public Matrix<T> {
    */
   RowMatrix(int rows, int cols) : Matrix<T>(rows, cols) {
     data_ = new T *[rows];
-    for (int i = 0; i < rows; i++) data_[i] = Matrix<T>::linear_ + i * cols;
+    for (int i = 0; i < rows; i++) {
+      data_[i] = Matrix<T>::linear_ + i * cols;
+    }
   }
 
   /**
@@ -146,8 +148,9 @@ class RowMatrix : public Matrix<T> {
    * @throws OUT_OF_RANGE if either index is out of range
    */
   T GetElement(int i, int j) const override {
-    if (i < 0 || i >= Matrix<T>::rows_ || j < 0 || j >= Matrix<T>::cols_)
+    if (i < 0 || i >= Matrix<T>::rows_ || j < 0 || j >= Matrix<T>::cols_) {
       throw Exception(ExceptionType::OUT_OF_RANGE, "index is out of range");
+    }
     return data_[i][j];
   }
 
@@ -162,8 +165,9 @@ class RowMatrix : public Matrix<T> {
    * @throws OUT_OF_RANGE if either index is out of range
    */
   void SetElement(int i, int j, T val) override {
-    if (i < 0 || i >= Matrix<T>::rows_ || j < 0 || j >= Matrix<T>::cols_)
+    if (i < 0 || i >= Matrix<T>::rows_ || j < 0 || j >= Matrix<T>::cols_) {
       throw Exception(ExceptionType::OUT_OF_RANGE, "index is out of range");
+    }
     data_[i][j] = val;
   }
 
@@ -180,9 +184,12 @@ class RowMatrix : public Matrix<T> {
    */
   void FillFrom(const std::vector<T> &source) override {
     int vector_size = source.size();
-    if (vector_size != Matrix<T>::rows_ * Matrix<T>::cols_)
+    if (vector_size != Matrix<T>::rows_ * Matrix<T>::cols_) {
       throw Exception(ExceptionType::OUT_OF_RANGE, "source is incorrect size");
-    for (int i = 0; i < vector_size; i++) Matrix<T>::linear_[i] = source[i];
+    }
+    for (int i = 0; i < vector_size; i++) {
+      Matrix<T>::linear_[i] = source[i];
+    }
   }
 
   /**
@@ -220,8 +227,9 @@ class RowMatrixOperations {
    */
   static std::unique_ptr<RowMatrix<T>> Add(const RowMatrix<T> *matrixA, const RowMatrix<T> *matrixB) {
     // TODO(P0): Add implementation
-    if (matrixA->GetRowCount() != matrixB->GetRowCount() || matrixA->GetColumnCount() != matrixB->GetColumnCount())
+    if (matrixA->GetRowCount() != matrixB->GetRowCount() || matrixA->GetColumnCount() != matrixB->GetColumnCount()) {
       return std::unique_ptr<RowMatrix<T>>(nullptr);
+    }
     int rows = matrixA->GetRowCount();
     int cols = matrixA->GetColumnCount();
     T sum;
@@ -244,16 +252,20 @@ class RowMatrixOperations {
    */
   static std::unique_ptr<RowMatrix<T>> Multiply(const RowMatrix<T> *matrixA, const RowMatrix<T> *matrixB) {
     // TODO(P0): Add implementation
-    if (matrixA->GetColumnCount() != matrixB->GetRowCount()) return std::unique_ptr<RowMatrix<T>>(nullptr);
-    int rowsA = matrixA->GetRowCount();
-    int colsB = matrixB->GetColumnCount();
-    int colsA = matrixA->GetColumnCount();
+    if (matrixA->GetColumnCount() != matrixB->GetRowCount()) {
+      return std::unique_ptr<RowMatrix<T>>(nullptr);
+    }
+    int rows_a = matrixA->GetRowCount();
+    int cols_b = matrixB->GetColumnCount();
+    int cols_a = matrixA->GetColumnCount();
     T sum;
-    auto mat_c = std::unique_ptr<RowMatrix<T>>(new RowMatrix<T>(rowsA, colsB));
-    for (int i = 0; i < rowsA; i++) {
-      for (int j = 0; j < colsB; j++) {
+    auto mat_c = std::unique_ptr<RowMatrix<T>>(new RowMatrix<T>(rows_a, cols_b));
+    for (int i = 0; i < rows_a; i++) {
+      for (int j = 0; j < cols_b; j++) {
         sum = 0;
-        for (int k = 0; k < colsA; k++) sum = sum + matrixA->GetElement(i, k) * matrixB->GetElement(k, j);
+        for (int k = 0; k < cols_a; k++) {
+          sum = sum + matrixA->GetElement(i, k) * matrixB->GetElement(k, j);
+        }
         mat_c->SetElement(i, j, sum);
       }
     }
@@ -272,7 +284,9 @@ class RowMatrixOperations {
                                             const RowMatrix<T> *matrixC) {
     // TODO(P0): Add implementation
     auto mat_tmp = Multiply(matrixA, matrixB);
-    if (mat_tmp != nullptr) return Add(mat_tmp, matrixC);
+    if (mat_tmp != nullptr) {
+      return Add(mat_tmp.get(), matrixC);
+    }
     return std::unique_ptr<RowMatrix<T>>(nullptr);
   }
 };
