@@ -132,17 +132,17 @@ Page *BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) {
 
 /**
  * 从缓冲池中获取请求的页面
- * @param page_id id of page to be fetched
- * @return the requested page
+ * @param page_id 请求的页面的id
+ * @return 请求的页面
  */
 Page *BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) {
-  // 1.     Search the page table for the requested page (P).
-  // 1.1    If P exists, pin it and return it immediately.
-  // 1.2    If P does not exist, find a replacement page (R) from either the free list or the replacer.
-  //        Note that pages are always found from the free list first.
-  // 2.     If R is dirty, write it back to the disk.
-  // 3.     Delete R from the page table and insert P.
-  // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
+  // 1.     在页表中查找请求的页面P.
+  // 1.1    如果P存在, pin它并立即返回该页面.
+  // 1.2    如果P不存在, 从free list或者replacer中找到一个换出的页面R.
+  //        注意总是先从free list中找页面.
+  // 2.     如果R是脏页, 则将它写回磁盘.
+  // 3.     将R从页表中删除并在页表中插入P.
+  // 4.     更新P的(元)数据, 从磁盘中读入P的内容, 返回指向P的指针.
   std::scoped_lock lock{latch_};
   auto iter = page_table_.find(page_id);
   // 如果存在，即Page在缓冲池中
