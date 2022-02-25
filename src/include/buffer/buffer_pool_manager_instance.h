@@ -121,11 +121,11 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    */
   void ValidatePageId(page_id_t page_id) const;
 
-  /** Number of pages in the buffer pool. */
+  /** 缓冲池中页的数目. */
   const size_t pool_size_;
-  /** How many instances are in the parallel BPM (if present, otherwise just 1 BPI) */
+  /** 并行缓冲池实例中有多少缓冲池实例(BPI) (非并行情况只有1个缓冲池实例) */
   const uint32_t num_instances_ = 1;
-  /** Index of this BPI in the parallel BPM (if present, otherwise just 0) */
+  /** 并行缓冲池实例中缓冲池实例的下标 (非并行情况缓冲池实例下标只为0) */
   const uint32_t instance_index_ = 0;
   /** Each BPI maintains its own counter for page_ids to hand out, must ensure they mod back to its instance_index_ */
   std::atomic<page_id_t> next_page_id_ = instance_index_;
