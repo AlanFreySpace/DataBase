@@ -24,9 +24,9 @@ namespace bustub {
 
 /**
  *
- * Directory Page for extendible hash table.
+ * 可扩展散列的目录页
  *
- * Directory format (size in byte):
+ * 目录项格式 (size in byte):
  * --------------------------------------------------------------------------------------------
  * | LSN (4) | PageId(4) | GlobalDepth(4) | LocalDepths(512) | BucketPageIds(2048) | Free(1524)
  * --------------------------------------------------------------------------------------------
@@ -34,47 +34,47 @@ namespace bustub {
 class HashTableDirectoryPage {
  public:
   /**
-   * @return the page ID of this page
+   * @return 该页的page ID
    */
   page_id_t GetPageId() const;
 
   /**
-   * Sets the page ID of this page
+   * 设置该页的page ID
    *
-   * @param page_id the page id to which to set the page_id_ field
+   * @param page_id 用来设置page_id_
    */
   void SetPageId(page_id_t page_id);
 
   /**
-   * @return the lsn of this page
+   * @return 该页的lsn(日志流水号)
    */
   lsn_t GetLSN() const;
 
   /**
-   * Sets the LSN of this page
+   * 设置该页的lsn
    *
    * @param lsn the log sequence number to which to set the lsn field
    */
   void SetLSN(lsn_t lsn);
 
   /**
-   * Lookup a bucket page using a directory index
+   * 使用目录索引得到桶的页
    *
-   * @param bucket_idx the index in the directory to lookup
-   * @return bucket page_id corresponding to bucket_idx
+   * @param bucket_idx 要寻找的目录索引
+   * @return bucket bucket_idx的page_id
    */
   page_id_t GetBucketPageId(uint32_t bucket_idx);
 
   /**
-   * Updates the directory index using a bucket index and page_id
+   * 使用bucket index和page_id更新目录索引
    *
-   * @param bucket_idx directory index at which to insert page_id
-   * @param bucket_page_id page_id to insert
+   * @param bucket_idx 要设置page_id的目录索引
+   * @param bucket_page_id 要设置的page_id
    */
   void SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id);
 
   /**
-   * Gets the split image of an index
+   * split image of an index
    *
    * @param bucket_idx the directory index for which to find the split image
    * @return the directory index of the split image
@@ -82,24 +82,22 @@ class HashTableDirectoryPage {
   uint32_t GetSplitImageIndex(uint32_t bucket_idx);
 
   /**
-   * GetGlobalDepthMask - returns a mask of global_depth 1's and the rest 0's.
+   * GetGlobalDepthMask - 返回一个有global_depth个1其余为0的掩码.
    *
-   * In Extendible Hashing we map a key to a directory index
-   * using the following hash + mask function.
+   * 再可扩展哈希中我们使用hash函数和mask函数将key映射为directory index
    *
    * DirectoryIndex = Hash(key) & GLOBAL_DEPTH_MASK
    *
-   * where GLOBAL_DEPTH_MASK is a mask with exactly GLOBAL_DEPTH 1's from LSB
-   * upwards.  For example, global depth 3 corresponds to 0x00000007 in a 32-bit
-   * representation.
-   *
-   * @return mask of global_depth 1's and the rest 0's (with 1's from LSB upwards)
+   * 其中GLOBAL_DEPTH_MASK是一个低位有GLOBAL_DEPTH个1的掩码
+   * 例如, global depth 3对应的32位掩码是0x00000007
+   * 
+   * @return 低位有GLOBAL_DEPTH个1,其余为0的掩码
    */
   uint32_t GetGlobalDepthMask();
 
   /**
-   * GetLocalDepthMask - same as global depth mask, except it
-   * uses the local depth of the bucket located at bucket_idx
+   * GetLocalDepthMask - 与global depth mask类似, 只不过它返回
+   * bucket_idx号桶local depth的掩码
    *
    * @param bucket_idx the index to use for looking up local depth
    * @return mask of local 1's and the rest 0's (with 1's from LSB upwards)
@@ -174,10 +172,10 @@ class HashTableDirectoryPage {
   /**
    * VerifyIntegrity
    *
-   * Verify the following invariants:
-   * (1) All LD <= GD.
-   * (2) Each bucket has precisely 2^(GD - LD) pointers pointing to it.
-   * (3) The LD is the same at each index with the same bucket_page_id
+   * 验证以下条件:
+   * (1) 所有的LD <= GD.(Local Depth,Global Depth)
+   * (2) 每个桶都有2^(GD - LD)个指针指向它.
+   * (3) 指向相同桶的目录索引有着相同的LD
    */
   void VerifyIntegrity();
 

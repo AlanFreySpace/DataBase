@@ -28,7 +28,17 @@ uint32_t HashTableDirectoryPage::GetGlobalDepth() { return global_depth_; }
 
 uint32_t HashTableDirectoryPage::GetGlobalDepthMask() { return 0; }
 
-void HashTableDirectoryPage::IncrGlobalDepth() {}
+void HashTableDirectoryPage::IncrGlobalDepth() {
+  // assert(global_depth_ < MAX_BUCKET_DEPTH);
+  // 这里主要是需要将bucket_page_ids_和local_depths_的数据在现有数组的末尾再复制一份
+  // GlobalDepth加1则目录项增加一倍,但bucket数量不变
+  int org_num = Size();
+  for (int org_index = 0, new_index = org_num; org_index < org_num; new_index++, org_index++) {
+    bucket_page_ids_[new_index] = bucket_page_ids_[org_index];
+    local_depths_[new_index] = local_depths_[org_index];
+  }
+  global_depth_++;
+}
 
 void HashTableDirectoryPage::DecrGlobalDepth() { global_depth_--; }
 
@@ -38,7 +48,16 @@ void HashTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t buck
 
 uint32_t HashTableDirectoryPage::Size() { return 0; }
 
-bool HashTableDirectoryPage::CanShrink() { return false; }
+bool HashTableDirectoryPage::CanShrink() { 
+  // 整个Directory能不能收缩取决于每个localdepth是否都比globaldepth小
+  // 循环判断即可
+  for (uint32_t i = 0; i < Size(); i++) {
+    if (local_depths_[i] >= global_depth_) {
+      return false;
+    }
+  }
+  return true;
+}
 
 uint32_t HashTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) { return 0; }
 
