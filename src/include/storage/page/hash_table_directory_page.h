@@ -90,7 +90,7 @@ class HashTableDirectoryPage {
    *
    * 其中GLOBAL_DEPTH_MASK是一个低位有GLOBAL_DEPTH个1的掩码
    * 例如, global depth 3对应的32位掩码是0x00000007
-   * 
+   *
    * @return 低位有GLOBAL_DEPTH个1,其余为0的掩码
    */
   uint32_t GetGlobalDepthMask();

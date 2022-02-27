@@ -26,7 +26,7 @@ void HashTableDirectoryPage::SetLSN(lsn_t lsn) { lsn_ = lsn; }
 
 uint32_t HashTableDirectoryPage::GetGlobalDepth() { return global_depth_; }
 
-uint32_t HashTableDirectoryPage::GetGlobalDepthMask() { 
+uint32_t HashTableDirectoryPage::GetGlobalDepthMask() {
   // Example: 当global_depth_是3的时候
   // 0000...000001 << global_depeth_ = 0000...01000
   // 再减1即可
@@ -53,9 +53,7 @@ void HashTableDirectoryPage::DecrGlobalDepth() { global_depth_--; }
  * @param bucket_idx 要寻找的目录索引
  * @return bucket bucket_idx的page_id
  */
-page_id_t HashTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) { 
-  return bucket_page_ids_[bucket_idx];
-}
+page_id_t HashTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) { return bucket_page_ids_[bucket_idx]; }
 
 /**
  * 使用bucket index和page_id更新目录索引
@@ -70,12 +68,12 @@ void HashTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t buck
 /**
  * @return 当前目录的大小
  */
-uint32_t HashTableDirectoryPage::Size() { 
+uint32_t HashTableDirectoryPage::Size() {
   // 2 ^ global_depth_
   return (1 << global_depth_);
 }
 
-bool HashTableDirectoryPage::CanShrink() { 
+bool HashTableDirectoryPage::CanShrink() {
   // 整个Directory能不能收缩取决于每个localdepth是否都比globaldepth小
   // 循环判断即可
   for (uint32_t i = 0; i < Size(); i++) {
@@ -102,9 +100,7 @@ void HashTableDirectoryPage::IncrLocalDepth(uint32_t bucket_idx) {
 }
 
 // 将第bucket_idx个目录项对应桶的局部深度减1
-void HashTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {
-  local_depths_[bucket_idx]--;
-}
+void HashTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) { local_depths_[bucket_idx]--; }
 
 // uint32_t HashTableDirectoryPage::GetLocalHighBit(uint32_t bucket_idx) { return 0; }
 

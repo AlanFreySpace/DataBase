@@ -26,7 +26,8 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 HASH_TABLE_TYPE::ExtendibleHashTable(const std::string &name, BufferPoolManager *buffer_pool_manager,
                                      const KeyComparator &comparator, HashFunction<KeyType> hash_fn)
     : buffer_pool_manager_(buffer_pool_manager), comparator_(comparator), hash_fn_(std::move(hash_fn)) {
-  //  implement me!
+  // 由于还没有bucket，故要初始化directory_page_id_为无效值
+  directory_page_id_ = INVALID_PAGE_ID;
 }
 
 /*****************************************************************************
@@ -46,12 +47,14 @@ uint32_t HASH_TABLE_TYPE::Hash(KeyType key) {
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
 inline uint32_t HASH_TABLE_TYPE::KeyToDirectoryIndex(KeyType key, HashTableDirectoryPage *dir_page) {
-  return 0;
+  //直接用掩码做与运算即可 将key哈希后转换为目录索引
+  return Hash(key) & dir_page->GetGlobalDepthMask();
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
 inline uint32_t HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage *dir_page) {
-  return 0;
+  // 得到该key在哪个桶中
+  return dir_page->GetBucketPageId(KeyToDirectoryIndex(key, dir_page));
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>

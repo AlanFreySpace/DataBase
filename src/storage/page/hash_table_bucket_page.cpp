@@ -34,14 +34,14 @@ bool HASH_TABLE_BUCKET_TYPE::GetValue(KeyType key, KeyComparator cmp, std::vecto
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
 bool HASH_TABLE_BUCKET_TYPE::Insert(KeyType key, ValueType value, KeyComparator cmp) {
-  size_t available = -1;
+  int available = -1;
   // 遍历所有位置，找到一个可以插入的位置，并且确定有无完全相同的K/V，有则不插入
   for (size_t i = 0; i < BUCKET_ARRAY_SIZE; i++) {
     if (IsReadable(i)) {
-      if(cmp(key, array_[i].first) == 0&& value==array_[i].second]){
-        return false; // 有完全相同的K/V
+      if (cmp(key, array_[i].first) == 0 && value == array_[i].second) {
+        return false;  // 有完全相同的K/V
       }
-    } else if (available = -1) {
+    } else if (available == -1) {
       available = i;
     }
   }
