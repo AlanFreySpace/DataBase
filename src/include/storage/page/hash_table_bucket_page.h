@@ -22,7 +22,7 @@
 namespace bustub {
 /**
  * Store indexed key and and value together within bucket page. Supports
- * non-unique keys.
+ * non-unique keys.(非唯一键)
  *
  * Bucket page format (keys are stored in order):
  *  ----------------------------------------------------------------
@@ -139,9 +139,12 @@ class HashTableBucketPage {
 
  private:
   //  For more on BUCKET_ARRAY_SIZE see storage/page/hash_table_page_defs.h
+  // 如果array_的第i个索引曾经被占用过，则occupied_的第i位为1
   char occupied_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
   // 0 if tombstone/brand new (never occupied), 1 otherwise.
+  // 如果array_的第i个索引包含一个可读值，则readable_的第i位为1
   char readable_[(BUCKET_ARRAY_SIZE - 1) / 8 + 1];
+  // 保存key-value对
   MappingType array_[0];
 };
 
