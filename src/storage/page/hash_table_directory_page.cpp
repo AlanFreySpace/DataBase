@@ -26,7 +26,12 @@ void HashTableDirectoryPage::SetLSN(lsn_t lsn) { lsn_ = lsn; }
 
 uint32_t HashTableDirectoryPage::GetGlobalDepth() { return global_depth_; }
 
-uint32_t HashTableDirectoryPage::GetGlobalDepthMask() { return 0; }
+uint32_t HashTableDirectoryPage::GetGlobalDepthMask() { 
+  // Example: 当global_depth_是3的时候
+  // 0000...000001 << global_depeth_ = 0000...01000
+  // 再减1即可
+  return ((1 << global_depth_) - 1);
+}
 
 void HashTableDirectoryPage::IncrGlobalDepth() {
   // assert(global_depth_ < MAX_BUCKET_DEPTH);
@@ -42,11 +47,33 @@ void HashTableDirectoryPage::IncrGlobalDepth() {
 
 void HashTableDirectoryPage::DecrGlobalDepth() { global_depth_--; }
 
-page_id_t HashTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) { return 0; }
+/**
+ * 使用目录索引得到桶的页
+ *
+ * @param bucket_idx 要寻找的目录索引
+ * @return bucket bucket_idx的page_id
+ */
+page_id_t HashTableDirectoryPage::GetBucketPageId(uint32_t bucket_idx) { 
+  return bucket_page_ids_[bucket_idx];
+}
 
-void HashTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id) {}
+/**
+ * 使用bucket index和page_id更新目录索引
+ *
+ * @param bucket_idx 要设置page_id的目录索引
+ * @param bucket_page_id 要设置的page_id
+ */
+void HashTableDirectoryPage::SetBucketPageId(uint32_t bucket_idx, page_id_t bucket_page_id) {
+  bucket_page_ids_[bucket_idx] = bucket_page_id;
+}
 
-uint32_t HashTableDirectoryPage::Size() { return 0; }
+/**
+ * @return 当前目录的大小
+ */
+uint32_t HashTableDirectoryPage::Size() { 
+  // 2 ^ global_depth_
+  return (1 << global_depth_);
+}
 
 bool HashTableDirectoryPage::CanShrink() { 
   // 整个Directory能不能收缩取决于每个localdepth是否都比globaldepth小
@@ -59,15 +86,34 @@ bool HashTableDirectoryPage::CanShrink() {
   return true;
 }
 
-uint32_t HashTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) { return 0; }
+// 得到第bucket_idx个目录项对应桶的局部深度
+uint32_t HashTableDirectoryPage::GetLocalDepth(uint32_t bucket_idx) { return local_depths_[bucket_idx]; }
 
-void HashTableDirectoryPage::SetLocalDepth(uint32_t bucket_idx, uint8_t local_depth) {}
+// 设置第bucket_idx个目录项对应桶的局部深度为local_depth
+void HashTableDirectoryPage::SetLocalDepth(uint32_t bucket_idx, uint8_t local_depth) {
+  assert(local_depth <= global_depth_);
+  local_depths_[bucket_idx] = local_depth;
+}
 
-void HashTableDirectoryPage::IncrLocalDepth(uint32_t bucket_idx) {}
+// 将第bucket_idx个目录项对应桶的局部深度加1
+void HashTableDirectoryPage::IncrLocalDepth(uint32_t bucket_idx) {
+  assert(local_depths_[bucket_idx] < global_depth_);
+  local_depths_[bucket_idx]++;
+}
 
-void HashTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {}
+// 将第bucket_idx个目录项对应桶的局部深度减1
+void HashTableDirectoryPage::DecrLocalDepth(uint32_t bucket_idx) {
+  local_depths_[bucket_idx]--;
+}
 
-uint32_t HashTableDirectoryPage::GetLocalHighBit(uint32_t bucket_idx) { return 0; }
+// uint32_t HashTableDirectoryPage::GetLocalHighBit(uint32_t bucket_idx) { return 0; }
+
+uint32_t HashTableDirectoryPage::GetSplitImageIndex(uint32_t bucket_idx) {
+  // Example: 当对应的localdepth是3时：
+  // 1<<(3-1) = 0000....00100,设bucket_idx=00100 则异或后结果为00000
+  // 也就是说目录索引00100和00000同属同一分割镜像
+  return bucket_idx ^ (1 << (local_depths_[bucket_idx] - 1));
+}
 
 /**
  * VerifyIntegrity - Use this for debugging but **DO NOT CHANGE**
