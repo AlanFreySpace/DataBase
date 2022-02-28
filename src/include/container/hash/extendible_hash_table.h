@@ -136,6 +136,8 @@ class ExtendibleHashTable {
    */
   HASH_TABLE_BUCKET_TYPE *FetchBucketPage(page_id_t bucket_page_id);
 
+  HASH_TABLE_BUCKET_TYPE *GetBucketPageData(Page *page);
+
   /**
    * Performs insertion with an optional bucket splitting.
    *
@@ -159,7 +161,8 @@ class ExtendibleHashTable {
    * @param key the key that was removed
    * @param value the value that was removed
    */
-  void Merge(Transaction *transaction, const KeyType &key, const ValueType &value);
+  //void Merge(Transaction *transaction, const KeyType &key, const ValueType &value);
+  void Merge(Transaction *transaction, uint32_t target_bucket_index);
 
   // member variables
   page_id_t directory_page_id_;

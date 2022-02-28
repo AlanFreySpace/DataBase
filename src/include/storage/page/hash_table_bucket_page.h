@@ -137,6 +137,10 @@ class HashTableBucketPage {
    */
   void PrintBucket();
 
+  MappingType *GetArrayCopy();
+
+  void Reset();
+
  private:
   //  For more on BUCKET_ARRAY_SIZE see storage/page/hash_table_page_defs.h
   // 如果array_的第i个索引曾经被占用过，则occupied_的第i位为1
