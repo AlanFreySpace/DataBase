@@ -57,9 +57,41 @@ inline uint32_t HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage
   return dir_page->GetBucketPageId(KeyToDirectoryIndex(key, dir_page));
 }
 
+/**
+ * 从BufferPoolManager中得到directory所在的Page，Page中是一个Directory对象
+ * 如果还没有directory的话，那就创建一个
+ *
+ * @return a pointer to the directory page
+ */
 template <typename KeyType, typename ValueType, typename KeyComparator>
 HashTableDirectoryPage *HASH_TABLE_TYPE::FetchDirectoryPage() {
-  return nullptr;
+  HashTableDirectoryPage *ret;
+  // 如果不可用，则创建一个
+  if (directory_page_id_ == INVALID_PAGE_ID) {
+    // 先创建DirectoryPage
+    page_id_t new_page_id_dir;
+    Page *page = buffer_pool_manager_->NewPage(&new_page_id_dir);
+    assert(page != nullptr);
+    ret = reinterpret_cast<HashTableDirectoryPage *>(page->GetData());
+    directory_page_id_ = new_page_id_dir;
+    ret->SetPageId(directory_page_id_);
+    // 然后为空的directory创建第一个bucket
+    page_id_t new_page_id_buc;
+    page = nullptr;
+    page = buffer_pool_manager_->NewPage(&new_page_id_buc);
+    assert(page != nullptr);
+    ret->SetBucketPageId(0, new_page_id_buc);
+    // 最后Unpin这两个页面
+    assert(buffer_pool_manager_->UnpinPage(new_page_id_dir, true));
+    assert(buffer_pool_manager_->UnpinPage(new_page_id_buc, true));
+  }
+
+  // 从buffer中获取页面
+  assert(directory_page_id_ != INVALID_PAGE_ID);
+  Page *page = buffer_pool_manager_->FetchPage(directory_page_id_);
+  assert(page != nullptr);
+  ret = reinterpret_cast<HashTableDirectoryPage *>(page->GetData());
+  return ret;
 }
 
 template <typename KeyType, typename ValueType, typename KeyComparator>
