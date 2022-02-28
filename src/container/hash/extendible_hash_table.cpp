@@ -66,6 +66,8 @@ inline uint32_t HASH_TABLE_TYPE::KeyToPageId(KeyType key, HashTableDirectoryPage
 template <typename KeyType, typename ValueType, typename KeyComparator>
 HashTableDirectoryPage *HASH_TABLE_TYPE::FetchDirectoryPage() {
   HashTableDirectoryPage *ret;
+  // 目录结构可能发生修改,因此目录上锁
+  directory_lock_.lock();
   // 如果不可用，则创建一个
   if (directory_page_id_ == INVALID_PAGE_ID) {
     // 先创建DirectoryPage
@@ -85,6 +87,7 @@ HashTableDirectoryPage *HASH_TABLE_TYPE::FetchDirectoryPage() {
     assert(buffer_pool_manager_->UnpinPage(new_page_id_dir, true));
     assert(buffer_pool_manager_->UnpinPage(new_page_id_buc, true));
   }
+  directory_lock_.unlock();
 
   // 从buffer中获取页面
   assert(directory_page_id_ != INVALID_PAGE_ID);
@@ -95,7 +98,8 @@ HashTableDirectoryPage *HASH_TABLE_TYPE::FetchDirectoryPage() {
 }
 
 /**
- * 使用bucket_page_id从BufferPoolManager中得到一个Page，其data_域就是bucket对象。
+ * 使用pageid从BufferPoolManager中得到一个Page，其GetData就是bucket对象。
+ * 添加一个函数GetBucketPageData，将Page与data分开处理
  *
  * @param bucket_page_id the page_id to fetch
  * @return a pointer to a bucket page
@@ -104,7 +108,7 @@ template <typename KeyType, typename ValueType, typename KeyComparator>
 HASH_TABLE_BUCKET_TYPE *HASH_TABLE_TYPE::FetchBucketPage(page_id_t bucket_page_id) {
   Page *page = buffer_pool_manager_->FetchPage(bucket_page_id);
   assert(page != nullptr);
-  return reinterpret_cast<HASH_TABLE_BUCKET_TYPE *>(page->GetData());
+  return page;
 }
 
 // 将page转换为bucket page
