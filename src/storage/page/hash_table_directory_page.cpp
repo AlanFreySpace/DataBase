@@ -34,7 +34,7 @@ uint32_t HashTableDirectoryPage::GetGlobalDepthMask() {
 }
 
 void HashTableDirectoryPage::IncrGlobalDepth() {
-  // assert(global_depth_ < MAX_BUCKET_DEPTH);
+  assert(global_depth_ < MAX_BUCKET_DEPTH);
   // 这里主要是需要将bucket_page_ids_和local_depths_的数据在现有数组的末尾再复制一份
   // GlobalDepth加1则目录项增加一倍,但bucket数量不变
   int org_num = Size();

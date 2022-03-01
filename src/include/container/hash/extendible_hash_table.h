@@ -134,7 +134,7 @@ class ExtendibleHashTable {
    * @param bucket_page_id the page_id to fetch
    * @return a pointer to a bucket page
    */
-  HASH_TABLE_BUCKET_TYPE *FetchBucketPage(page_id_t bucket_page_id);
+  Page *FetchBucketPage(page_id_t bucket_page_id);
 
   HASH_TABLE_BUCKET_TYPE *GetBucketPageData(Page *page);
 
