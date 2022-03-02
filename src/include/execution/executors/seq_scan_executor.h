@@ -49,6 +49,9 @@ class SeqScanExecutor : public AbstractExecutor {
 
  private:
   /** The sequential scan plan node to be executed */
+  // 存储执行计划plan 物理表table_heap_ 对物理表的遍历器iter_
   const SeqScanPlanNode *plan_;
+  TableHeap *table_heap_;
+  TableIterator iter_;
 };
 }  // namespace bustub
